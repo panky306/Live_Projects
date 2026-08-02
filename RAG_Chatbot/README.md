@@ -1,4 +1,4 @@
-# 🎬 IMDB RAG Chatbot — Simple Frontend + Amazon Bedrock Lambda Bridge
+# 🎬 IMDB RAG Chatbot -Movie Buddy 
 
 A small, easy-to-run movie assistant: a Streamlit frontend (RAG_Chatbot/app.py) that sends user queries to an AWS Lambda bridge which calls an agent/runtime (Amazon Bedrock style) and returns short, sourced answers. This README is short and focused — what you need to run and tie the pieces together.
 
@@ -75,5 +75,8 @@ Example prompts (user-friendly)
 - "List movies with imdb rating 8 and above"
 - "Inception Overview"
 
-# Feel free to suggest any changes/Enhancements -Pankaj
+# ** Feel free to suggest any changes/Enhancements -Pankaj **
+
+
+
 
