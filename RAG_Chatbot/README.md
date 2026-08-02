@@ -1,6 +1,6 @@
 # 🎬 IMDB RAG Chatbot -Movie Buddy 
 
-A small, easy-to-run movie assistant: a Streamlit frontend (RAG_Chatbot/app.py) that sends user queries to an AWS Lambda bridge which calls an agent/runtime (Amazon Bedrock style) and returns short, sourced answers. This README is short and focused — what you need to run and tie the pieces together.
+A small, easy-to-run movie assistant: a Streamlit frontend (RAG_Chatbot/app.py) that sends user queries to an AWS Lambda bridge which calls an agent/runtime (Amazon Bedrock style) and returns short, sourced answers. This README is short and focused — what you need to run and tie the pieces together. [** No MEMORY is attached to the BOT currently]
 
 # Live Link : https://pankajimdbchatbot.streamlit.app
 
