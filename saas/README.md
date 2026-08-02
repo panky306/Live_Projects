@@ -1,8 +1,8 @@
-# DisCouponGen — Discount Coupon Generator (SaaS)
+# ✈️ DisCouponGen — Discount Coupon Generator (SaaS)
 
 # Live link: https://genaiapp-psi.vercel.app/
 
-DisCouponGen is a small SaaS demo that generates curated discount coupons for Indian domestic flight bookings using Google Gemini (via google-generativeai). The frontend is a Next.js (Pages Router) app and the backend is a minimal FastAPI service that streams model output to the client.
+DisCouponGen is a small SaaS demo that generates curated discount coupons for Indian domestic flight bookings using Google Gemini (via google-generativeai). The frontend is a Next.js (Pages Router)[...]
 
 🚀 Quick summary
 - Authenticated users (via Clerk) can request AI-generated discount coupons.
@@ -22,7 +22,7 @@ DisCouponGen is a small SaaS demo that generates curated discount coupons for In
   - Tailwind CSS for styling
 
 ## What it does (short)
-The Next.js UI authenticates users via Clerk and (for premium users) lets them request AI-generated discount coupons. The frontend opens a server-sent-events (SSE) stream to a FastAPI endpoint that drives the Gemini model in streaming mode and forwards model output to the client.
+The Next.js UI authenticates users via Clerk and (for premium users) lets them request AI-generated discount coupons. The frontend opens a server-sent-events (SSE) stream to a FastAPI endpoint that dr[...]
 
 ## Repo layout (relevant files in `saas/`)
 ```
@@ -65,7 +65,7 @@ High-level components:
 - AI Model (Google Gemini)
   - Invoked via `google-generativeai` in streaming mode to produce incremental text. The FastAPI endpoint yields SSE chunks as the model produces text.
 - SSE transport
-  - The server yields lines prefixed with `data: ` and the frontend uses `fetchEventSource` (from `@microsoft/fetch-event-source`) to connect and incrementally append content into a buffer for rendering.
+  - The server yields lines prefixed with `data: ` and the frontend uses `fetchEventSource` (from `@microsoft/fetch-event-source`) to connect and incrementally append content into a buffer for ren[...]
 - Rendering
   - The frontend uses `react-markdown` with `remark-gfm` and `remark-breaks` to render streaming markdown into formatted HTML.
 
@@ -78,7 +78,7 @@ High-level components:
 6. The frontend appends chunks, decodes escaped newlines, and re-renders the accumulated markdown to the user.
 
 ## Scalability and operational notes
-- The streaming approach reduces client-perceived latency (users see output incrementally) but increases connection-time state on the server; consider scaling workers or using an async server (Uvicorn with multiple workers or a process manager) if you expect many concurrent streams.
+- The streaming approach reduces client-perceived latency (users see output incrementally) but increases connection-time state on the server; consider scaling workers or using an async server (Uvicorn[...]
 - Model API usage is the primary cost driver; consider batching, caching, or prompt engineering to limit tokens.
 - The backend currently assumes a single `/api` endpoint; for production, split responsibilities (auth, usage accounting, rate limiting) into separate services or middleware.
 
@@ -101,7 +101,7 @@ npm install
 2) Backend (Python) — create venv and install
 ```bash
 python -m venv .venv
-source .venv/bin/activate    # Windows: .venv\Scripts\activate
+source .venv/bin/activate    # Windows: .venv\\Scripts\\activate
 pip install -r requirements.txt
 ```
 
@@ -126,7 +126,7 @@ npm run dev
 Next runs on http://localhost:3000 by default.
 
 Notes about local wiring:
-- The frontend currently calls `/api` (a relative path) using SSE. In local development the frontend (port 3000) and backend (port 8000) are on different origins; either enable CORS and call the absolute backend URL from the frontend, or run a proxy during development.
+- The frontend currently calls `/api` (a relative path) using SSE. In local development the frontend (port 3000) and backend (port 8000) are on different origins; either enable CORS and call the absol[...]
 
 ## Vercel deployment (cloud)
 Want to deploy the frontend quickly to Vercel and run the backend as a separate service (recommended for production)? Here's a straightforward approach.
@@ -144,7 +144,3 @@ A) Frontend on Vercel (recommended)
 
 
 ## *Feel free to suggest changes/enhancements -Pankaj*
-
-
-
-
