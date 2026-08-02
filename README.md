@@ -1,4 +1,4 @@
-# Here I have listed all my Deployed/Live projects
+# The Repo is listing all my Deployed/Live projects
 
  ** IMDB RAG Chatbot -Movie Buddy :
  Live Link : https://pankajimdbchatbot.streamlit.app
