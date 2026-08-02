@@ -1,40 +1,154 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# DisCouponGen — Discount Coupon Generator (SaaS)
 
-## Getting Started
+Live demo: https://genaiapp-psi.vercel.app/
 
-First, run the development server:
+DisCouponGen is a small SaaS demo that generates curated discount coupons for Indian domestic flight bookings using Google Gemini (via google-generativeai). The frontend is a Next.js (Pages Router) app with Clerk authentication and subscription protection; the backend is a small FastAPI SSE endpoint that streams model output to the client.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Tech stack
+- Languages: TypeScript (frontend), Python (backend), CSS (Tailwind)
+- Frameworks / runtimes:
+  - Frontend: Next.js (Pages Router; Next v16)
+  - Backend: FastAPI served with Uvicorn
+- Notable libraries:
+  - Clerk (authentication & subscription protection) — `@clerk/nextjs`
+  - Google Generative AI (`google-generativeai`) — Gemini model integration
+  - fetch-event-source (`@microsoft/fetch-event-source`) — SSE client
+  - React Markdown + remark plugins for rendering streamed markdown
+  - Tailwind CSS for styling
+
+## What it does (short)
+The Next.js UI authenticates users via Clerk and (for premium users) lets them request AI-generated discount coupons. The frontend opens a server-sent-events (SSE) stream to a FastAPI endpoint that drives Gemini to generate content and streams the model's text back to the browser in real time.
+
+## Repo layout (relevant files in `saas/`)
+```
+saas/
+  pages/
+    index.tsx         # Landing page & sign-in UI
+    product.tsx       # Protected app page; SSE consumer, renders markdown
+    _app.tsx          # ClerkProvider wrapper
+    _document.tsx     # Document (title/meta)
+  api/
+    index.py          # FastAPI app: SSE endpoint that calls Gemini (google-generativeai)
+  styles/
+    globals.css       # Tailwind + markdown styles
+  package.json        # Frontend deps & scripts
+  requirements.txt    # Python backend dependencies
+  next.config.ts
+  middleware.ts       # Clerk middleware / route protection
+  postcss.config.mjs
+  tsconfig.json
+  README.md (this file)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+How it fits together:
+- The frontend (Next) handles auth and subscription gating via Clerk. When a signed-in, authorized user visits `/product`, the UI requests a JWT from Clerk and calls the SSE endpoint.
+- The backend (FastAPI) validates the Clerk JWT (using fastapi-clerk-auth) and streams content from the Google Generative AI model to the client using SSE.
+- The frontend accumulates SSE chunks and renders them as Markdown using `react-markdown`.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+## Design and architecture details
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+High-level components:
+- Frontend (Next.js Pages)
+  - Responsible for user-facing UI, authentication flow with Clerk, subscription gating using Clerk's Protect component, and consuming SSE to render streaming content.
+  - Key files: `pages/index.tsx`, `pages/product.tsx`, `pages/_app.tsx`, `middleware.ts`.
+- Authentication & Authorization (Clerk)
+  - Clerk provides sign-in, session management, and plan/entitlement checks on the frontend via `@clerk/nextjs`.
+  - Middleware (`middleware.ts`) applies route protection on supported routes.
+- Backend (FastAPI + Uvicorn)
+  - Exposes a single SSE endpoint (`/api`) implemented in `api/index.py` which expects a validated Clerk JWT and then drives the Gemini model to generate content.
+  - Uses `fastapi-clerk-auth` to validate the incoming JWT via the Clerk JWKS URL.
+- AI Model (Google Gemini)
+  - Invoked via `google-generativeai` in streaming mode to produce incremental text. The FastAPI endpoint yields SSE chunks as the model produces text.
+- SSE transport
+  - The server yields lines prefixed with `data: ` and the frontend uses `fetchEventSource` (from `@microsoft/fetch-event-source`) to connect and incrementally append content into a buffer for rendering.
+- Rendering
+  - The frontend uses `react-markdown` with `remark-gfm` and `remark-breaks` to render streaming markdown into formatted HTML.
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+Data & control flow (request lifecycle):
+1. User signs in on the frontend via Clerk and navigates to `/product`.
+2. Frontend obtains a JWT via `getToken()` from Clerk.
+3. Frontend opens an SSE connection to `/api` including Authorization: `Bearer <jwt>` header.
+4. FastAPI endpoint validates the JWT and, if valid, calls Gemini in stream mode.
+5. FastAPI yields incoming model text as SSE `data:` messages to the client.
+6. The frontend appends chunks, decodes escaped newlines, and re-renders the accumulated markdown to the user.
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Scalability and operational notes:
+- The streaming approach reduces client-perceived latency (users see output incrementally) but increases connection-time state on the server; consider scaling workers or using an async server (Uvicorn with multiple workers) or a dedicated stream-hosting platform if traffic grows.
+- Model API usage is the primary cost driver; consider batching, caching, or prompt engineering to limit tokens.
+- The backend currently assumes a single `/api` endpoint; for production, split responsibilities (auth, usage accounting, rate limiting) into separate services or middleware.
 
-## Learn More
+## How to run it
+The shortest path from a fresh clone to a running development environment.
 
-To learn more about Next.js, take a look at the following resources:
+Prerequisites:
+- Node 18+ and npm/yarn/pnpm
+- Python 3.10+
+- A Clerk project and Google Gemini API key (GEMINI_API_KEY) — set these in your environment when running locally
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
+1) Clone and install
+```bash
+git clone https://github.com/panky306/Live_Projects.git
+cd Live_Projects/saas
+# Frontend deps
+npm install
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2) Backend (Python) — create venv and install
+```bash
+python -m venv .venv
+source .venv/bin/activate    # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+```
 
-## Deploy on Vercel
+3) Required environment variables (example)
+```bash
+export GEMINI_API_KEY="sk-..."
+export CLERK_JWKS_URL="https://clerk.example/.well-known/jwks.json"
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+4) Run the backend
+From `saas/`:
+```bash
+uvicorn api.index:app --reload --host 0.0.0.0 --port 8000
+```
+This exposes the API endpoint at `http://localhost:8000/api`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+5) Run the frontend
+From `saas/`:
+```bash
+npm run dev
+```
+Next runs on http://localhost:3000 by default.
+
+Notes about local wiring:
+- The frontend currently calls `/api` (a relative path) using SSE. In local development the frontend (port 3000) and backend (port 8000) are on different origins; either enable CORS and call the absolute backend URL from the frontend or configure a proxy/rewrite so `/api` resolves to the backend from the Next dev server.
+
+## Try asking
+- How does the SSE stream get decoded on the frontend? Which file handles this?
+- Where in the code is the Gemini model configured and which model id is used?
+- How would I add server-side plan verification before allowing the SSE stream to start?
+
+## Where to look in the code
+- Frontend auth & UI:
+  - pages/index.tsx — landing + sign-in and link to `/product`
+  - pages/product.tsx — SSE client and markdown display
+  - pages/_app.tsx — Clerk provider setup
+  - middleware.ts — Clerk middleware / route protection
+- Backend:
+  - api/index.py — FastAPI app, SSE endpoint, Gemini model invocation
+  - requirements.txt — Python deps
+- Styling:
+  - styles/globals.css — Tailwind + markdown styles
+- Project metadata:
+  - package.json and package-lock.json — frontend deps and scripts
+
+## License
+MIT — feel free to reuse and adapt.
+
+---
+
+If you'd like, I can:
+- Commit further repository changes (e.g., make the frontend use NEXT_PUBLIC_API_BASE_URL), or
+- Add a minimal `docker-compose` or `Procfile` that runs both frontend and backend for local testing.
+
+Which of those would you like me to do next?
