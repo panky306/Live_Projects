@@ -142,29 +142,4 @@ A) Frontend on Vercel (recommended)
 5. Build & Output Settings: Vercel automatically detects Next.js; use the default build command (`npm run build`) and output directory.
 6. Deploy. The site will be available at `https://<your-vercel-project>.vercel.app`.
 
-B) Backend deployment options
-Option 1 — Deploy backend to a small cloud VM / container service (recommended for model access):
-- Use services like AWS EC2, DigitalOcean App Platform, Render, Fly.io, Railway, or a container in Google Cloud Run.
-- Start the FastAPI app with Uvicorn (or use an ASGI adapter provided by the host). Ensure you expose `/api` and enable HTTPS.
-- Set environment variables (GEMINI_API_KEY, CLERK_JWKS_URL) in the host's configuration.
-- Once the backend URL is live (https://api.example.com), set `NEXT_PUBLIC_API_BASE_URL=https://api.example.com` in your Vercel project settings so the frontend calls the correct API origin.
-
-Option 2 — Host backend as a Serverless Function (less ideal for long-lived SSE connections):
-- Many serverless platforms (Vercel Serverless Functions) have execution time limits or do not support streaming connections well.
-- For production SSE streaming, prefer a container/VM or a server that supports long-lived connections.
-
-C) CORS & security notes
-- If frontend and backend are on different origins, configure CORS on the FastAPI app to allow the Vercel origin.
-- Keep GEMINI_API_KEY secret and only on the backend; do not expose it in frontend environment variables.
-
-## Notes & next steps
-- Consider adding server-side plan verification (Clerk) in the FastAPI endpoint before starting the model call so only paid users can stream content.
-- For production readiness: add rate limits, usage accounting, and monitoring around model calls.
-
----
-
-If you want, I can now:
-- Add a small `docker-compose.yml` that runs both frontend and backend for local testing, or
-- Add a Vercel-specific README snippet / template for setting environment variables in Vercel during import.
-
-Tell me which of these you'd like and I'll add it as a follow-up commit.
+**Feel free to suggest changes/enhancements - Pankaj **
