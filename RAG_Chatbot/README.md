@@ -1,6 +1,8 @@
-# 🎬 IMDB RAG Chatbot — Simple Frontend + Bedrock Lambda Bridge
+# 🎬 IMDB RAG Chatbot — Simple Frontend + Amazon Bedrock Lambda Bridge
 
 A small, easy-to-run movie assistant: a Streamlit frontend (RAG_Chatbot/app.py) that sends user queries to an AWS Lambda bridge which calls an agent/runtime (Amazon Bedrock style) and returns short, sourced answers. This README is short and focused — what you need to run and tie the pieces together.
+
+# Live Link : https://pankajimdbchatbot.streamlit.app
 
 🚀 Highlights
 - Frontend: Streamlit UI (RAG_Chatbot/app.py)
@@ -69,22 +71,9 @@ Deployment notes (backend)
 ---
 
 Example prompts (user-friendly)
-- "Summarize The Godfather in 2 sentences and list director and top 3 cast."
-- "Recommend a thriller from the IMDB top 1000 for a small group — explain why in one sentence."
-- "Who won Best Actor for The King's Speech and which year? Provide an IMDB URL."
+- "List top 5 drama movies"
+- "List movies with imdb rating 8 and above"
+- "Inception Overview"
 
-Improved prompt (short template to send to the agent)
+# Feel free to suggest any changes/Enhancements -Pankaj
 
-You can send this text as the query to get structured, reliable answers:
-
-"You are a concise movie assistant. Use the IMDB knowledge base only. Return a short summary (1-3 sentences), a facts block (year, director, top_cast up to 3), and any citations (source id or URL). Keep language simple.\nQuestion: <user question>"
-
-Why use this: it encourages short, factual answers and citations (easy for frontend parsing).
-
----
-
-Keep it simple: the frontend is a lightweight demo — the backend pieces (OpenSearch Serverless, Tital embeddings, Nova lite v1.0, Bedrock knowledge) are where production work happens (indexing, embeddings, and model tuning). Use this repo as the UI + integration example and wire your own Bedrock/OpenSearch infra for a full RAG system.
-
----
-
-License: MIT
