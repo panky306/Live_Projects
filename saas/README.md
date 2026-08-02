@@ -1,6 +1,6 @@
 # DisCouponGen — Discount Coupon Generator (SaaS)
 
-Live demo: https://genaiapp-psi.vercel.app/
+# Live demo: https://genaiapp-psi.vercel.app/
 
 DisCouponGen is a small SaaS demo that generates curated discount coupons for Indian domestic flight bookings using Google Gemini (via google-generativeai). The frontend is a Next.js (Pages Router) app and the backend is a minimal FastAPI service that streams model output to the client.
 
@@ -142,4 +142,9 @@ A) Frontend on Vercel (recommended)
 5. Build & Output Settings: Vercel automatically detects Next.js; use the default build command (`npm run build`) and output directory.
 6. Deploy. The site will be available at `https://<your-vercel-project>.vercel.app`.
 
-**Feel free to suggest changes/enhancements - Pankaj **
+
+## *Feel free to suggest changes/enhancements -Pankaj*
+
+
+
+
