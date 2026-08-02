@@ -2,7 +2,12 @@
 
 Live demo: https://genaiapp-psi.vercel.app/
 
-DisCouponGen is a small SaaS demo that generates curated discount coupons for Indian domestic flight bookings using Google Gemini (via google-generativeai). The frontend is a Next.js (Pages Router) app with Clerk authentication and subscription protection; the backend is a small FastAPI SSE endpoint that streams model output to the client.
+DisCouponGen is a small SaaS demo that generates curated discount coupons for Indian domestic flight bookings using Google Gemini (via google-generativeai). The frontend is a Next.js (Pages Router) app and the backend is a minimal FastAPI service that streams model output to the client.
+
+🚀 Quick summary
+- Authenticated users (via Clerk) can request AI-generated discount coupons.
+- The frontend opens a server-sent-events (SSE) stream to the FastAPI backend which proxies streaming responses from the Gemini model.
+- Streaming reduces perceived latency by rendering markdown as chunks arrive.
 
 ## Tech stack
 - Languages: TypeScript (frontend), Python (backend), CSS (Tailwind)
@@ -17,7 +22,7 @@ DisCouponGen is a small SaaS demo that generates curated discount coupons for In
   - Tailwind CSS for styling
 
 ## What it does (short)
-The Next.js UI authenticates users via Clerk and (for premium users) lets them request AI-generated discount coupons. The frontend opens a server-sent-events (SSE) stream to a FastAPI endpoint that drives Gemini to generate content and streams the model's text back to the browser in real time.
+The Next.js UI authenticates users via Clerk and (for premium users) lets them request AI-generated discount coupons. The frontend opens a server-sent-events (SSE) stream to a FastAPI endpoint that drives the Gemini model in streaming mode and forwards model output to the client.
 
 ## Repo layout (relevant files in `saas/`)
 ```
@@ -40,7 +45,7 @@ saas/
   README.md (this file)
 ```
 
-How it fits together:
+## How it fits together
 - The frontend (Next) handles auth and subscription gating via Clerk. When a signed-in, authorized user visits `/product`, the UI requests a JWT from Clerk and calls the SSE endpoint.
 - The backend (FastAPI) validates the Clerk JWT (using fastapi-clerk-auth) and streams content from the Google Generative AI model to the client using SSE.
 - The frontend accumulates SSE chunks and renders them as Markdown using `react-markdown`.
@@ -64,7 +69,7 @@ High-level components:
 - Rendering
   - The frontend uses `react-markdown` with `remark-gfm` and `remark-breaks` to render streaming markdown into formatted HTML.
 
-Data & control flow (request lifecycle):
+## Data & control flow (request lifecycle)
 1. User signs in on the frontend via Clerk and navigates to `/product`.
 2. Frontend obtains a JWT via `getToken()` from Clerk.
 3. Frontend opens an SSE connection to `/api` including Authorization: `Bearer <jwt>` header.
@@ -72,12 +77,12 @@ Data & control flow (request lifecycle):
 5. FastAPI yields incoming model text as SSE `data:` messages to the client.
 6. The frontend appends chunks, decodes escaped newlines, and re-renders the accumulated markdown to the user.
 
-Scalability and operational notes:
-- The streaming approach reduces client-perceived latency (users see output incrementally) but increases connection-time state on the server; consider scaling workers or using an async server (Uvicorn with multiple workers) or a dedicated stream-hosting platform if traffic grows.
+## Scalability and operational notes
+- The streaming approach reduces client-perceived latency (users see output incrementally) but increases connection-time state on the server; consider scaling workers or using an async server (Uvicorn with multiple workers or a process manager) if you expect many concurrent streams.
 - Model API usage is the primary cost driver; consider batching, caching, or prompt engineering to limit tokens.
 - The backend currently assumes a single `/api` endpoint; for production, split responsibilities (auth, usage accounting, rate limiting) into separate services or middleware.
 
-## How to run it
+## How to run it (development)
 The shortest path from a fresh clone to a running development environment.
 
 Prerequisites:
@@ -121,34 +126,45 @@ npm run dev
 Next runs on http://localhost:3000 by default.
 
 Notes about local wiring:
-- The frontend currently calls `/api` (a relative path) using SSE. In local development the frontend (port 3000) and backend (port 8000) are on different origins; either enable CORS and call the absolute backend URL from the frontend or configure a proxy/rewrite so `/api` resolves to the backend from the Next dev server.
+- The frontend currently calls `/api` (a relative path) using SSE. In local development the frontend (port 3000) and backend (port 8000) are on different origins; either enable CORS and call the absolute backend URL from the frontend, or run a proxy during development.
 
-## Try asking
-- How does the SSE stream get decoded on the frontend? Which file handles this?
-- Where in the code is the Gemini model configured and which model id is used?
-- How would I add server-side plan verification before allowing the SSE stream to start?
+## Vercel deployment (cloud)
+Want to deploy the frontend quickly to Vercel and run the backend as a separate service (recommended for production)? Here's a straightforward approach.
 
-## Where to look in the code
-- Frontend auth & UI:
-  - pages/index.tsx — landing + sign-in and link to `/product`
-  - pages/product.tsx — SSE client and markdown display
-  - pages/_app.tsx — Clerk provider setup
-  - middleware.ts — Clerk middleware / route protection
-- Backend:
-  - api/index.py — FastAPI app, SSE endpoint, Gemini model invocation
-  - requirements.txt — Python deps
-- Styling:
-  - styles/globals.css — Tailwind + markdown styles
-- Project metadata:
-  - package.json and package-lock.json — frontend deps and scripts
+A) Frontend on Vercel (recommended)
+1. Push your repo to GitHub (it already is).
+2. Go to https://vercel.com/new and import the repository `panky306/Live_Projects`.
+3. During import, set the Project Path to `saas/` so Vercel builds the Next.js app inside that folder.
+4. Environment variables (set these in Vercel Project Settings → Environment Variables):
+   - GEMINI_API_KEY (if calling model from frontend — not recommended; prefer backend)
+   - CLERK_FRONTEND_API (your Clerk frontend configuration values) — see Clerk docs
+   - NEXT_PUBLIC_API_BASE_URL — set to the backend's public URL (see section B)
+5. Build & Output Settings: Vercel automatically detects Next.js; use the default build command (`npm run build`) and output directory.
+6. Deploy. The site will be available at `https://<your-vercel-project>.vercel.app`.
 
-## License
-MIT — feel free to reuse and adapt.
+B) Backend deployment options
+Option 1 — Deploy backend to a small cloud VM / container service (recommended for model access):
+- Use services like AWS EC2, DigitalOcean App Platform, Render, Fly.io, Railway, or a container in Google Cloud Run.
+- Start the FastAPI app with Uvicorn (or use an ASGI adapter provided by the host). Ensure you expose `/api` and enable HTTPS.
+- Set environment variables (GEMINI_API_KEY, CLERK_JWKS_URL) in the host's configuration.
+- Once the backend URL is live (https://api.example.com), set `NEXT_PUBLIC_API_BASE_URL=https://api.example.com` in your Vercel project settings so the frontend calls the correct API origin.
+
+Option 2 — Host backend as a Serverless Function (less ideal for long-lived SSE connections):
+- Many serverless platforms (Vercel Serverless Functions) have execution time limits or do not support streaming connections well.
+- For production SSE streaming, prefer a container/VM or a server that supports long-lived connections.
+
+C) CORS & security notes
+- If frontend and backend are on different origins, configure CORS on the FastAPI app to allow the Vercel origin.
+- Keep GEMINI_API_KEY secret and only on the backend; do not expose it in frontend environment variables.
+
+## Notes & next steps
+- Consider adding server-side plan verification (Clerk) in the FastAPI endpoint before starting the model call so only paid users can stream content.
+- For production readiness: add rate limits, usage accounting, and monitoring around model calls.
 
 ---
 
-If you'd like, I can:
-- Commit further repository changes (e.g., make the frontend use NEXT_PUBLIC_API_BASE_URL), or
-- Add a minimal `docker-compose` or `Procfile` that runs both frontend and backend for local testing.
+If you want, I can now:
+- Add a small `docker-compose.yml` that runs both frontend and backend for local testing, or
+- Add a Vercel-specific README snippet / template for setting environment variables in Vercel during import.
 
-Which of those would you like me to do next?
+Tell me which of these you'd like and I'll add it as a follow-up commit.
