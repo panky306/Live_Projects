@@ -1,3 +1,3 @@
-# SaaS Deployed on AWS
+# Project is located @
 
-This folder contains the SaaS project deployed on AWS.
+https://github.com/panky306/consultation-app.git
