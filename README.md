@@ -3,8 +3,8 @@
  ** IMDB RAG Chatbot -Movie Buddy :
  Live Link : https://pankajimdbchatbot.streamlit.app
 
- ** DisCouponGen — Discount Coupon Generator (SaaS on vercel)[Method:GET]:
+ ** DisCouponGen — Discount Coupon Generator (SaaS on vercel) [Method:GET]:
  Live link: https://genaiapp-psi.vercel.app/
 
- ** MediNotes — AI assisted Medical Consultant (SaaS on aws) [Method GET and POST]:
+ ** MediNotes — AI assisted Medical Consultant (SaaS on aws) [Method POST]:
      Live link: https://hn6qjsnmdv6wivpdyku6zdtafe0xtyfh.lambda-url.ap-southeast-2.on.aws
