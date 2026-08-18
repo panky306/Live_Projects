@@ -3,16 +3,19 @@
  # IMDB RAG Chatbot -Movie Buddy :
  
  Live Link : https://pankajimdbchatbot.streamlit.app
- For details: /RAG_Chatbot
+ 
+ Link to Project: https://github.com/panky306/Live_Projects/tree/main/RAG_Chatbot
  
 
  # DisCouponGen — Discount Coupon Generator (SaaS on vercel):
  
  Live link: https://genaiapp-psi.vercel.app/
- For details: /saas
+
+ Link to Project: https://github.com/panky306/Live_Projects/tree/main/saas
  
 
  # MediNotes — AI assisted Medical Consultant (SaaS on aws):
  
  Live link: https://hn6qjsnmdv6wivpdyku6zdtafe0xtyfh.lambda-url.ap-southeast-2.on.aws
- For details: /saas_deployed_on_aws
+
+ Link to Project: https://github.com/panky306/Live_Projects/tree/main/saas_deployed_on_aws
