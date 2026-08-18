@@ -1,4 +1,4 @@
-# The Repo is listing all my Deployed/Live projects
+# My LIVE Projects.
 
  # IMDB RAG Chatbot -Movie Buddy :
  
