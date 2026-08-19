@@ -19,3 +19,7 @@
  Live link: https://hn6qjsnmdv6wivpdyku6zdtafe0xtyfh.lambda-url.ap-southeast-2.on.aws
 
  Link to Project: https://github.com/panky306/Live_Projects/tree/main/saas_deployed_on_aws
+
+ # AI Digital Twin:
+
+ Live link: digital_twin on aws deployment link: https://d2r25cnlido3a.cloudfront.net
